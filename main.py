@@ -5,9 +5,10 @@ from subprocess import Popen
 
 
 class StatusClient():
-    def __init__(self, url, token):
+    def __init__(self, url, token, server):
         self.url = url
         self.token = token
+        self.server = server
         self.status_id = self.get_id()
         self.status = self.get_self()
         self.host_id = self.status['host']
@@ -48,13 +49,13 @@ class StatusClient():
         return s.getsockname()[0]
 
     def tunnel(self):
-        p = Popen(['/usr/bin/ssh -o "VerifyHostKeyDNS yes" -TNR ' + str(2200 + int(self.host_id)) + ':localhost:22 localhost'], shell=True)
+        p = Popen(['/usr/bin/ssh -TNR ' + str(2200 + int(self.host_id)) + ':localhost:22 '+self.server], shell=True)
         return p
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
-        s = StatusClient(token=sys.argv[2], url=sys.argv[1])
+    if len(sys.argv) == 4:
+        s = StatusClient(token=sys.argv[2], url=sys.argv[1], server=sys.argv[3])
         print(s.status)
         if not s.status['reachable']:
             p = s.tunnel()
@@ -66,4 +67,4 @@ if __name__ == '__main__':
         else: data= s.data(2, True)
         print(s.update(data).json())
     else:
-        print("Usage : " + sys.argv[0] + ' <URL without trailing slash> <token>')
+        print("Usage : " + sys.argv[0] + ' <URL without trailing slash> <token> <ssh host>')
