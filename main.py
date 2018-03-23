@@ -52,6 +52,10 @@ class StatusClient():
         p = Popen(['/usr/bin/ssh -TNR ' + str(2200 + int(self.host_id)) + ':localhost:22 '+self.server], shell=True)
         return p
 
+    def kill_tunnel(self):
+       from os import system
+       system("killall ssh")
+
 
 if __name__ == '__main__':
     if len(sys.argv) == 4:
@@ -62,6 +66,7 @@ if __name__ == '__main__':
             print("Started SSH tunnel")
             p.poll()
             if p.returncode is None:
+                s.kill_tunnel()
                 data = s.data(2, True)
             else: data = s.data(2, False)
         else: data= s.data(2, True)
