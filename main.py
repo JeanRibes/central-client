@@ -24,14 +24,13 @@ class StatusClient():
                            headers={'Authorization': 'Token ' + self.token})
         return res.json()
 
-    def data(self, state, remote_capable):
+    def data(self, state, up):
         return {
             "id": self.status_id,
             "ip": self.get_ip(),
             "local_ip": self.get_lan_ip(),
-            "up": 'true',
+            "up": up,
             "state": state,
-            "remote_capable": remote_capable,
             "host": self.status["host"]
         }
 
@@ -58,18 +57,11 @@ class StatusClient():
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 4:
+    if len(sys.argv) == 4 or len(sys.argv) == 3:
         s = StatusClient(token=sys.argv[2], url=sys.argv[1], server=sys.argv[3])
         print(s.status)
-        if not s.status['reachable']:
-            p = s.tunnel()
-            print("Started SSH tunnel")
-            p.poll()
-            if p.returncode is None:
-                s.kill_tunnel()
-                data = s.data(2, True)
-            else: data = s.data(2, False)
-        else: data= s.data(2, True)
+        data = s.data(state=2, up=True)
         print(s.update(data).json())
     else:
         print("Usage : " + sys.argv[0] + ' <URL without trailing slash> <token> <ssh host>')
+        exit(1)
