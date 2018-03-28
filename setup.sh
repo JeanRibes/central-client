@@ -1,10 +1,10 @@
 if [ $# = 2 ]
 then
-ID=$(curl -H "Authorization: Token $2" https://api.ribes.me/hosts/status/me/)
+ID=$(curl -H "Authorization: Token $2" https://api.$1/hosts/status/me/)
 cat ssh-tunnel@remoteHost > ssh-tunnel@$1
 echo "LOCAL_PORT=$((2200+ID))" >> ssh-tunnel@$1
 echo "TARGET=$1" >> ssh-tunnel@$1
-curl -H "Authorization: Token $2" -X POST-d '{"id":4,"ip":"0.0.0.0","local_ip":"0.0.0.0","state":0, "host":$ID}' http://localhost:8000/hosts/status/
+curl -H "Authorization: Token $2" -X POST-d '{"id":$ID,"ip":"0.0.0.0","local_ip":"0.0.0.0","state":0, "host":$ID}' https://api.$1/hosts/status/
 sudo cp ssh-tunnel@.service /etc/systemd/system/
 sudo cp ssh-tunnel@$1 /etc/default/
 sudo useradd --create-home status
